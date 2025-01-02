@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>비밀번호 재설정</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #000; /* 배경색 검정 */
+                color: #fff; /* 기본 텍스트 흰색 */
+            }
+            .container {
+                text-align: center;
+                padding: 20px;
+                border: 1px solid #444;
+                border-radius: 5px;
+                background-color: #222;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                width: 300px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            input[type="password"] {
+                width: 93%;
+                padding: 10px;
+                border: 1px solid #444;
+                border-radius: 5px;
+                background-color: #333;
+                color: #fff;
+            }
+            button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #ff0000;
+                color: white;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #cc0000;
+            }
+            a {
+                color: #ff0000;
+            }
+        </style>
+    </head>
+<body>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+        
+        <!-- 상단 로고 -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Pick&Flix Logo" class="logo-image" style="width: 350px;">
+        </div>
+        
+        <!-- 비밀번호 재설정 컨테이너 -->
+        <div class="container">
+            <h2>비밀번호 재설정</h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="new_password">새 비밀번호</label>
+                    <input type="password" id="new_password" name="new_password" required>
+                </div>
+                <button type="submit">비밀번호 재설정</button>
+            </form>
+            
+            <p><a href="/">로그인 화면으로 돌아가기</a></p>
+        </div>
+    </div>
+</body>
+</html>

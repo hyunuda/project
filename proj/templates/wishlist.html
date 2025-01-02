@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>위시리스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            position: fixed; /* 화면 상단에 고정 */
+            top: 0; /* 페이지 최상단 위치 */
+            left: 0;
+            width: 100%; /* 화면 전체 너비 */
+            z-index: 1000; /* 다른 콘텐츠보다 위에 표시되도록 설정 */
+            background-color: #000; /* 헤더 배경색 */
+            display: flex;
+            justify-content: flex-start; /* 왼쪽 정렬 */
+            align-items: center; /* 세로 가운데 정렬 */
+            gap: 20px; /* 로고와 버튼 간격 */
+            padding: 20px; /* 여백 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* 그림자 효과 */
+        }
+        .container {
+            padding-top: 80px; /* 헤더 높이만큼 여백 추가 */
+        }
+        .logo-image {
+            height: 50px; /* 로고 높이 */
+            width: auto; /* 비율에 맞게 너비 조정 */
+            display: block;
+        }
+
+        .genre-link {
+            font-size: 1.2rem;
+            color: #fff;
+            text-decoration: none;
+            border: 2px solid #ff0000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #000;
+            transition: background-color 0.3s ease;
+        }
+        .genre-link:hover {
+            background-color: #ff0000;
+            color: #000;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .movie {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #222;
+        }
+        .movie img {
+            max-width: 100px;
+            border-radius: 5px;
+        }
+        .movie-details {
+            flex: 1;
+            margin-left: 10px;
+            text-align: left;
+        }
+        .movie-details h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .movie-details p {
+            margin: 5px 0;
+        }
+        .remove-button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff0000;
+            color: white;
+            cursor: pointer;
+        }
+        .remove-button:hover {
+            background-color: #cc0000;
+        }
+        .movie-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+        }
+        .movie-link:hover .movie-details h3 {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 헤더 -->
+    <div class="header">
+        <a href="{{ url_for('recommendations') }}" class="logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Pick&Flix Logo" class="logo-image">
+        </a>
+        <a href="{{ url_for('genre_search') }}" class="genre-link">키워드 검색</a>
+        <a href="{{ url_for('wishlist') }}" class="genre-link">위시리스트</a> <!-- 현재 페이지 -->
+    </div>
+
+    <!-- 찜리스트 컨텐츠 -->
+    <div class="container">
+        <h1>위시리스트</h1>
+        {% if movies %}
+            {% for movie in movies %}
+            <div class="movie">
+                <a href="{{ url_for('movie_details', movie_id=movie.movie_id) }}" class="movie-link">
+                    <img src="{{ url_for('static', filename='img/' + movie.movie_id + '.jpg') }}" alt="{{ movie.movie_title }}">
+                    <div class="movie-details">
+                        <h3>{{ movie.movie_title }}</h3>
+                        <p>개봉년도: {{ movie.release_year }}</p>
+                    </div>
+                </a>
+                <form method="POST" action="{{ url_for('remove_from_wishlist', movie_id=movie.movie_id) }}">
+                    <button type="button" class="remove-button" data-movie-id="{{ movie.movie_id }}">제거</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>찜한 영화가 없습니다.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.querySelectorAll('.remove-button').forEach(button => {
+            button.addEventListener('click', function () {
+                const movieId = this.getAttribute('data-movie-id');
+
+                fetch(`/remove-from-wishlist/${movieId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // 성공 시 DOM에서 해당 영화 항목 제거
+                        this.closest('.movie').remove();
+                    } else {
+                        alert('삭제 중 오류가 발생했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('AJAX 요청 중 오류 발생:', error);
+                    alert('삭제할 수 없습니다.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

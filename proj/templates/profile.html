@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212; /* 배경을 짙은 검정색으로 설정 */
+            color: #fff; /* 기본 텍스트 색상 흰색으로 */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+        .profile-container {
+            background-color: #1f1f1f; /* 어두운 배경 */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4); /* 빨간 그림자 효과 */
+            width: 400px;
+            text-align: left;
+            position: relative;
+        }
+        h2 {
+            text-align: center;
+            color: #ff0000; /* 제목 색상 빨간색 */
+            margin-bottom: 20px;
+        }
+        .profile-item {
+            margin-bottom: 15px;
+        }
+        .profile-item label {
+            font-weight: bold;
+            color: #ccc; /* 레이블 텍스트 색상 */
+        }
+        .profile-item span {
+            color: #fff; /* 사용자 데이터 텍스트 색상 */
+        }
+        .profile-icon {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f1f1f;
+            border-radius: 50%;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+        }
+        .profile-icon i {
+            font-size: 40px;
+            color: #ff0000;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ff0000;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .back-button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="location.href='/recommendations'">나가기</button>
+    <div class="profile-container">
+        <div class="profile-icon">
+            <i class="fas fa-user"></i>
+        </div>
+        <h2>내 정보</h2>
+        <div class="profile-item">
+            <label>이메일:</label> <span>{{ user.email }}</span>
+        </div>
+        <div class="profile-item">
+            <label>이름:</label> <span>{{ user.user_name }}</span>
+        </div>
+        <div class="profile-item">
+            <label>성별:</label>
+            <span>
+                {% if user.gender == 'M' %}
+                    남자
+                {% elif user.gender == 'F' %}
+                    여자
+                {% elif user.gender == 'N' %}
+                    기타
+                {% else %}
+                    알 수 없음
+                {% endif %}
+            </span>
+        </div>        
+        <div class="profile-item">
+            <label>생년월일:</label>
+            <span>
+                {{ user.date_of_birth[:4] }}년 {{ user.date_of_birth[4:6]|int }}월 {{ user.date_of_birth[6:8]|int }}일
+            </span>
+        </div>
+        
+        <div class="profile-item">
+            <label>시도:</label> <span>{{ user.province }}</span>
+        </div>
+        <div class="profile-item">
+            <label>선호 장르:</label> <span>{{ user.preferred_genres }}</span>
+        </div>
+
+         <!-- 로그아웃 버튼 -->
+         <button class="logout-button" onclick="location.href='/logout'">로그아웃</button>
+    </div>
+</body>
+</html>

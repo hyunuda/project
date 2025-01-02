@@ -1,0 +1,77 @@
+<!-- search_results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검색 결과</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000; /* 배경을 검정색으로 */
+            color: #fff; /* 기본 텍스트 색상 흰색으로 */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .back-button {
+            padding: 5px 10px; /* 버튼 안쪽 여백 조정 */
+            background-color: #ff0000; /* 버튼 배경 색상 빨간색 */
+            color: white; /* 글자 색상 */
+            text-align: center; /* 텍스트 중앙 정렬 */
+            border: none; /* 테두리 없음 */
+            border-radius: 5px; /* 테두리 반경 설정 */
+            text-decoration: none; /* 링크 밑줄 제거 */
+            font-size: 14px; /* 글자 크기 조정 */
+            transition: background-color 0.3s; /* 호버 효과를 위한 트랜지션 */
+            margin-bottom: 20px; /* 버튼과 다른 요소 사이 간격 추가 */
+            display: inline-block; /* 버튼을 인라인 블록으로 설정 */
+        }
+        .back-button:hover {
+            background-color: #cc0000; /* 호버 시 배경 색상 변경 */
+        }
+        .poster-row {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .poster-row img {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+            cursor: pointer;
+            margin: 10px;
+        }
+        .poster-row img:hover {
+            transform: scale(1.05);
+            transition: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 뒤로가기 버튼 -->
+        <button onclick="window.history.back()" class="back-button">뒤로가기</button>
+
+        <h1>검색 결과</h1>
+        <div class="poster-row">
+            {% if search_results %}
+                {% for movie in search_results %}
+                    <a href="{{ url_for('movie_details', movie_id=movie['movie_id'], previous_page='search_results') }}">
+                        <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p>검색된 콘텐츠가 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>로그인</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #000; /* 배경색을 검정색으로 */
+                color: #fff; /* 기본 텍스트 색상 흰색으로 */
+            }
+            .container {
+                text-align: center;
+                padding: 20px;
+                border: 1px solid #444; /* 테두리를 어두운 색으로 */
+                border-radius: 5px;
+                background-color: #222; /* 컨테이너 배경 어두운 회색으로 */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+                width: 300px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            input[type="email"],
+            input[type="password"] {
+                width: 93%;
+                padding: 10px;
+                border: 1px solid #444; /* 테두리를 어두운 색으로 */
+                border-radius: 5px;
+                background-color: #333; /* 입력창 배경 어두운 회색 */
+                color: #fff; /* 텍스트 색상을 흰색으로 */
+            }
+            button {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background-color: #ff0000; /* 버튼 배경 빨간색으로 */
+                color: white;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #cc0000; /* 버튼 hover 시 더 진한 빨간색으로 */
+            }
+            a {
+                color: #ff0000; /* 링크 색상 빨간색으로 */
+            }
+        </style>
+    </head>
+<body>
+    <!-- 전체 중앙 정렬 -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+    
+    <!-- 상단 로고 -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Pick&Flix Logo" class="logo-image" style="width: 350px;">
+    </div>
+        
+    <!-- 로그인 컨테이너 -->
+    <div class="container">
+        <h2>로그인</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="user_pwd">비밀번호</label>
+                <input type="password" id="user_pwd" name="user_pwd" required>
+            </div>
+            <button type="submit">로그인</button>
+        </form>
+        
+        <p>계정이 없으신가요? <a href="/signup">회원가입</a></p>
+        <p>비밀번호를 잊어버리셨나요? <a href="/reset-password">비밀번호 찾기</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 등록</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(200, 200, 200, 0.2);
+            position: relative; /* 위치를 조정하기 위해 추가 */
+        }
+        h1 {
+            color: #ff0000;
+            text-align: center;
+        }
+        .back-button {
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 10px 15px;
+            position: absolute; /* 절대 위치로 설정 */
+            top: 20px; /* 상단에서 20px 떨어진 위치 */
+            left: 20px; /* 왼쪽에서 20px 떨어진 위치 */
+        }
+        .back-button:hover {
+            background-color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="number"], input[type="date"], input[type="file"], textarea {
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color:  #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+        .dropdown-container {
+            margin-top: 10px;
+            position: relative;
+        }
+        .dropdown-button {
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1a1a1a;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(200, 200, 200, 0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 1;
+        }
+        .dropdown-content label {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .dropdown-content input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .selected-categories {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+    </style>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.querySelector('.dropdown-content');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateSelectedCategories() {
+            const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked');
+            const selectedCategories = Array.from(checkboxes).map(checkbox => checkbox.nextSibling.textContent.trim());
+            const selectedCategoriesContainer = document.querySelector('.selected-categories');
+            const dropdownButton = document.querySelector('.dropdown-button');
+
+            if (selectedCategories.length > 0) {
+                selectedCategoriesContainer.textContent = '선택한 카테고리: ' + selectedCategories.join(', ');
+                dropdownButton.textContent = '선택한 카테고리 (' + selectedCategories.length + '개)';
+            } else {
+                selectedCategoriesContainer.textContent = '카테고리를 선택하세요.';
+                dropdownButton.textContent = '카테고리 선택';
+            }
+        }
+
+        function limitCategorySelection(max) {
+            const checkboxes = document.querySelectorAll('.dropdown-content input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const checkedCount = document.querySelectorAll('.dropdown-content input[type="checkbox"]:checked').length;
+                    if (checkedCount > max) {
+                        this.checked = false;
+                        alert('최대 ' + max + '개의 카테고리만 선택할 수 있습니다.');
+                    }
+                    updateSelectedCategories();
+                });
+            });
+        }
+
+        window.onload = function() {
+            limitCategorySelection(3);
+            document.addEventListener('click', event => {
+                const dropdown = document.querySelector('.dropdown-content');
+                if (!dropdown.contains(event.target) && event.target !== document.querySelector('.dropdown-button')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.history.back()">뒤로가기</button>
+        <h1>영화 등록</h1>
+        <form action="{{ url_for('add_movie') }}" method="POST" enctype="multipart/form-data">
+
+            <label for="movie_id">영화 코드</label>
+            <input type="text" id="movie_id" name="movie_id" required>
+
+            <label for="movie_title">영화 제목</label>
+            <input type="text" id="movie_title" name="movie_title" required>
+
+            <label for="release_year">출시 년도</label>
+            <input type="number" id="release_year" name="release_year" oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" required>
+            
+            <label for="directors">감독</label>
+            <input type="text" id="directors" name="directors" placeholder="감독 이름을 쉼표(,)로 구분하여 입력하세요" required>
+
+            <label for="genres">장르 (최대 3개 선택 가능)</label>
+            <div class="dropdown-container">
+                <button type="button" class="dropdown-button" onclick="toggleDropdown()">카테고리 선택</button>
+                <div class="dropdown-content">
+                    {% for genre in genres %}
+                        <label>
+                            <input type="checkbox" name="genres" value="{{ genre['genre_id'] }}" onchange="updateSelectedCategories()">
+                            {{ genre['genre_title'] }}
+                        </label>
+                    {% endfor %}
+                </div>
+                <div class="selected-categories">카테고리를 선택하세요.</div>
+            </div>
+            
+            <label for="synopsis">줄거리</label>
+            <textarea id="synopsis" name="synopsis" rows="5" placeholder="영화 줄거리를 입력하세요" required></textarea>
+
+            <label for="runtime">런타임 (분)</label>
+            <input type="number" id="runtime" name="runtime" required>
+
+            <label for="watch_grade">시청 등급</label>
+            <input type="number" id="watch_grade" name="watch_grade" required>
+
+            <label for="add_time">영화 추가일</label>
+            <input type="number" id="add_time" name="add_time" oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);" required>
+
+            <label for="end_time">계약 종료일</label>
+            <input type="number" id="end_time" name="end_time" oninput="if(this.value.length > 8) this.value = this.value.slice(0, 8);" required>
+
+            <label for="poster_path">포스터 이미지</label>
+            <input type="file" id="poster_path" name="poster_path">
+            
+            <label for="video_path">비디오 영상</label>
+            <input type="file" id="video_path" name="video_path">
+
+            <button type="submit">영화 등록</button>
+        </form>
+    </div>
+</body>
+</html>

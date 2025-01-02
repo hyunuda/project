@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .header {
+            display: flex;
+            justify-content: flex-start; /* 왼쪽 정렬 */
+            align-items: center;
+            gap: 20px; /* 로고와 키워드 검색 간 간격 */
+            padding: 20px 0;
+        }
+        .logo-part {
+            color: #ff0000; /* PICK과 FLIX는 빨간색 */
+        }
+
+        .logo-amp {
+            color: #ffffff; /* & 기호는 흰색 */
+        }
+
+        .logo-image {
+            height: 50px; /* 로고 높이 */
+            width: auto; /* 비율에 맞게 너비 조정 */
+            display: block;
+        }
+        .genre-link {
+            font-size: 1.2rem;
+            color: #fff;
+            text-decoration: none;
+            border: 2px solid #ff0000;
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #000;
+            transition: background-color 0.3s ease;
+        }
+        .genre-link:hover {
+            background-color: #ff0000;
+            color: #000;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000; /* 배경을 검정색으로 */
+            color: #fff; /* 기본 텍스트 색상 흰색으로 */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative; /* 버튼 배치를 위해 position 추가 */
+        }
+        .header-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .profile-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ff0000;
+        }
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+            padding: 10px;
+            text-align: left;
+        }
+        .profile-menu a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 0;
+        }
+        .profile-menu a:hover {
+            text-decoration: underline;
+        }
+        .notification-button {
+            position: relative; /* 배지를 상대적으로 위치시킬 수 있도록 설정 */
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -10px; /* 버튼의 상단 외부에 위치 */
+            right: -10px; /* 버튼의 오른쪽 외부에 위치 */
+            background-color: #ff0000;
+            color: #fff;
+            font-size: 12px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+            display: none; /* 기본적으로 숨김 */
+        }
+
+        .notification-container {
+            display: none; /* 처음에는 숨김 */
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background-color: #000; /* 프로필 버튼과 동일한 검정색 배경 */
+            color: #fff;
+            padding: 10px;
+            border: 1px solid #ff0000; /* 빨간색 테두리 */
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto; /* 스크롤 가능 */
+            z-index: 1000;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: center;
+            background-color: #111; /* 더 어두운 배경 */
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            border: 1px solid #222; /* 내부 항목의 경계선 */
+            color: #fff;
+        
+        }
+        .notification-item a {
+            color: #fff; /* 링크 텍스트를 하얀색으로 설정 */
+            text-decoration: none; /* 기본 밑줄 제거 */
+        }
+        .notification-item a:hover {
+            color: #000; /* 호버 시 검정색으로 변경 */
+        }
+        .notification-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .notification-item p {
+            margin: 0;
+            color: #fff;
+            font-size: 14px; /* 텍스트 크기 조정 */
+        }
+
+        .notification-item:hover {
+            background-color: #ff0000; /* 빨간색 배경 */
+            color: #000; /* 호버 시 텍스트를 검정색으로 */
+            transform: scale(1.05); /* 살짝 확대 */
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.7); /* 호버 시 그림자 강조 */
+        }
+        .search-box {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 60px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+        }
+        .search-box input[type="text"] {
+            padding: 5px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #222;
+            color: #fff;
+        }
+        .search-box button {
+            padding: 5px;
+            background-color: #ff0000; /* 프로필 버튼 및 알람 버튼과 동일한 빨간색 */
+            color: #fff; /* 텍스트 색상 흰색 */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px; /* 텍스트 크기 */
+            font-weight: bold; /* 텍스트 강조 */
+        }
+        .search-box button:hover {
+            background-color: #cc0000; /* 호버 시 어두운 빨간색 */
+        }
+        h1 {
+            color: #ff0000; /* 기본 텍스트는 빨간색 */
+            text-align: center; /* 가운데 정렬 */
+        }
+
+        .user-name {
+            color: #fff; /* 이름 부분만 하얀색 */
+        }
+        .category {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ff0000;
+        }
+        .user-name {
+            color: #fff; /* 이름 부분만 하얀색 */
+        }
+        .poster-row-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 10px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #ff0000 #222;
+        }
+        .poster-row-scroll::-webkit-scrollbar {
+            height: 10px;
+        }
+        .poster-row-scroll::-webkit-scrollbar-track {
+            background: #222;
+        }
+        .poster-row-scroll::-webkit-scrollbar-thumb {
+            background-color: #ff0000;
+            border-radius: 10px;
+            border: 2px solid #222;
+        }
+        .poster-row-scroll img {
+            width: 180px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .poster-row-scroll img:hover {
+            transform: scale(1.05);
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            z-index: 1;
+        }
+        .arrow.left {
+            left: -20px;
+        }
+        .arrow.right {
+            right: -20px;
+        }
+        .arrow:hover {
+            background-color: #ff0000;
+        }
+
+        /* 전체 영화 그리드 스타일 */
+        .poster-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 한 줄에 6개 */
+            gap: 20px;
+            padding: 10px 0;
+        }
+        .poster-grid img {
+            width: 100%; /* 그리드에 맞게 이미지 크기 조정 */
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .poster-grid img:hover {
+            transform: scale(1.05);
+        }
+        /* TOP 버튼 */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px; /* 화면 하단으로부터 30px */
+            right: 250px; /* 화면 오른쪽으로부터 250px */
+            background-color: #ff0000;
+            color: #fff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            opacity: 0; /* 기본적으로 숨김 */
+            pointer-events: none; /* 클릭 불가 */
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        .scroll-to-top.visible {
+            opacity: 1; /* 보이게 함 */
+            pointer-events: auto; /* 클릭 가능 */
+        }
+        .scroll-to-top i {
+            font-size: 1.5rem;
+        }
+        .scroll-to-top:hover {
+            background-color: #fff;
+            color: #ff0000;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+        }
+        .movie-info {
+            text-align: center; /* 가운데 정렬 */
+            margin-top: 5px; /* 제목과 시청률 간 간격 */
+        }
+        .watch-percentage {
+            color: #ff0000; /* 시청률 색상 */
+            font-weight: bold; /* 강조 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('recommendations') }}" class="logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Pick&Flix Logo" class="logo-image">
+            </a>    
+            <a href="{{ url_for('genre_search') }}" class="genre-link">장르 검색</a>
+            <a href="{{ url_for('wishlist') }}" class="genre-link">위시리스트</a> <!-- 위시리스트 버튼 추가 -->
+        </div>
+        
+        <div class="header-buttons">
+            <!-- 검색 버튼 -->
+            <button id="search-button" class="search-button" onclick="toggleSearchBox()">
+                <i class="fas fa-search"></i> <!-- 검색 아이콘 -->
+            </button>
+            <!-- 알람 버튼 -->
+            <button id="notification-button" class="notification-button" onclick="toggleNotification()">
+                <i class="fas fa-bell"></i>
+                <span id="notification-badge" class="notification-badge" style="display:none;">!</span>
+            </button>    
+            <!-- 프로필 버튼 -->
+            <a href="{{ url_for('profile') }}" class="profile-button">
+                <i class="fas fa-user"></i>
+            </a>
+        </div>
+        <!-- 검색창 -->
+        <div id="search-box" class="search-box">
+            <form method="GET" action="/search-content">
+                <input type="text" name="query" placeholder="콘텐츠 이름을 입력하세요...">
+                <button type="submit">검색</button>
+            </form>
+        </div>
+        <!-- 알람 창 -->
+        <div id="notification" class="notification-container">
+            <div id="notification-list"></div>
+        </div>
+        
+        <h1>
+            <span class="user-name">{{ user_name }}</span> 님을 위한 <span class="logo-part">PICK</span><span class="logo-amp">&</span><span class="logo-part">FLIX</span>
+        </h1>        
+    
+        <!-- AI추천 영화 -->
+        <div class="category">
+            <div class="category-title">
+                <span class="user-name">{{ user_name }}</span> 님을 위한 AI 추천 영화
+            </div>
+            
+            {% if personal_recommendations %}
+                <button class="arrow left" onclick="scrollMovies('ai-movies', 'left')"><i class="fas fa-chevron-left"></i></button>
+                <button class="arrow right" onclick="scrollMovies('ai-movies', 'right')"><i class="fas fa-chevron-right"></i></button>
+                <div id="ai-movies" class="poster-row-scroll">
+                    {% for movie in personal_recommendations %}
+                    <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                        <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div>추천할 영화가 없습니다.</div>
+            {% endif %}
+        </div>      
+        <!-- 전체 영화 TOP 10 -->
+        <div class="category">
+            <div class="category-title">전체 영화 TOP 10</div>
+            <button class="arrow left" onclick="scrollMovies('top-movies', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="arrow right" onclick="scrollMovies('top-movies', 'right')"><i class="fas fa-chevron-right"></i></button>
+            <div id="top-movies" class="poster-row-scroll">
+                {% for movie in top_movies %}
+                <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                    <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- 시청 중인 영화 -->
+        <div class="category">
+            <div class="category-title">시청 중인 영화</div>
+            <button class="arrow left" onclick="scrollMovies('currently-watching', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="arrow right" onclick="scrollMovies('currently-watching', 'right')"><i class="fas fa-chevron-right"></i></button>
+            <div id="currently-watching" class="poster-row-scroll">
+                {% for movie in currently_watching %}
+                <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                    <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                    <div class="movie-info">
+                        <div class="watch-percentage">시청률: {{ movie['max_watch_per'] }}%</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>      
+        <!-- 회원님들이 많이 보는 영화 -->
+        <div class="category">
+            <div class="category-title">회원님들이 많이 보는 영화</div>
+            <button class="arrow left" onclick="scrollMovies('popular-movies', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="arrow right" onclick="scrollMovies('popular-movies', 'right')"><i class="fas fa-chevron-right"></i></button>
+            <div id="popular-movies" class="poster-row-scroll">
+                {% for movie in popular_movies %}
+                    <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                        <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- 곧 서비스가 종료될 영화 -->
+        <div class="category">
+            <div class="category-title">곧 서비스가 종료될 영화</div>
+            <button class="arrow left" onclick="scrollMovies('expiring-movies', 'left')"><i class="fas fa-chevron-left"></i></button>
+            <button class="arrow right" onclick="scrollMovies('expiring-movies', 'right')"><i class="fas fa-chevron-right"></i></button>
+            <div id="expiring-movies" class="poster-row-scroll">
+                {% for movie in expiring_movies %}
+                <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                    <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- 전체 영화 섹션 -->
+        <div class="category">
+            <div class="category-title">전체 영화</div>
+            <div id="all-movies-grid" class="poster-grid">
+                {% for movie in all_movies[:30] %} <!-- 첫 30개만 로드 -->
+                <a href="{{ url_for('movie_details', movie_id=movie['movie_id']) }}">
+                    <img src="{{ url_for('static', filename='img/' + movie['movie_id']|string + '.jpg') }}" alt="{{ movie['movie_title'] }}">
+                </a>
+                {% endfor %}
+            </div>
+            <div id="loading" style="text-align: center; display: none; color: #ff0000;">로딩 중...</div>
+        </div>
+    </div>
+    <!-- TOP 버튼 -->
+    <div id="scrollToTop" class="scroll-to-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const notificationButton = document.getElementById('notification-button');
+            const notificationContainer = document.getElementById('notification');
+            const notificationList = document.getElementById('notification-list');
+            const badge = document.getElementById('notification-badge');
+            const searchButton = document.getElementById('search-button');
+            const searchBox = document.getElementById('search-box');
+    
+            // 알림 버튼 클릭 시 알림 표시/숨김 토글
+            function toggleNotification(event) {
+                event.stopPropagation();
+                if (notificationContainer.style.display === 'block') {
+                    notificationContainer.style.display = 'none';
+                } else {
+                    notificationContainer.style.display = 'block';
+                    if (notificationList.children.length > 0) {
+                        badge.style.display = 'none'; // 배지 숨김
+                    }
+                }
+            }
+    
+            // 검색 버튼 클릭 시 검색창 표시/숨김 토글
+            function toggleSearchBox(event) {
+                event.stopPropagation();
+                if (searchBox.style.display === 'block') {
+                    searchBox.style.display = 'none';
+                } else {
+                    searchBox.style.display = 'block';
+                }
+            }
+    
+            // 외부 클릭 시 창 닫기
+            function closeOnOutsideClick(event) {
+                if (!notificationContainer.contains(event.target) && event.target !== notificationButton) {
+                    notificationContainer.style.display = 'none';
+                }
+                if (!searchBox.contains(event.target) && event.target !== searchButton) {
+                    searchBox.style.display = 'none';
+                }
+            }
+    
+            // 알림 추가 함수
+            function addNotification(date, title, movieId) {
+                const item = document.createElement('div');
+                item.classList.add('notification-item');
+                item.innerHTML = `
+                    <a href="#" class="notification-link" data-movie-id="${movieId}">
+                        ${date}: 새로운 영화 "${title}"가 추가되었습니다!
+                    </a>
+                `;
+                notificationList.appendChild(item);
+    
+                badge.style.display = 'block'; // 새 알림이 추가될 때 배지 표시
+            }
+    
+            // 알림 클릭 시 동작 추가 (링크 동작을 제어하고 URL 이동)
+            notificationList.addEventListener('click', async (event) => {
+                const target = event.target;
+                if (target.classList.contains('notification-link')) {
+                    event.preventDefault(); // 기본 링크 동작 방지
+                    const movieId = target.getAttribute('data-movie-id');
+    
+                    try {
+                        // 알림 읽음 처리
+                        const response = await fetch(`/mark-notifications-read-v2/${movieId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        });
+    
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log('Notification marked as read:', result);
+    
+                            // 알림 목록에서 읽은 알림 제거
+                            const linkToRemove = notificationList.querySelector(`a[data-movie-id="${movieId}"]`);
+                            if (linkToRemove) {
+                                linkToRemove.parentElement.remove(); // 부모 요소 제거
+                            }
+    
+                            // 알림 목록이 비었을 경우 메시지 추가
+                            if (!notificationList.children.length) {
+                                notificationList.innerHTML = '<p>새로운 알림이 없습니다.</p>';
+                            }
+    
+                            // 페이지 이동
+                            window.location.href = `/movie_details/${movieId}`;
+                        } else {
+                            const error = await response.json();
+                            console.error('Failed to mark notification as read:', error);
+                            alert(`알림 읽음 처리에 실패했습니다: ${error.message}`);
+                        }
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                        alert('서버와의 통신에 문제가 발생했습니다.');
+                    }
+                }
+            });
+    
+            // 서버에서 알림 데이터 가져오기
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch('/get-notifications');
+                    if (response.ok) {
+                        const notifications = await response.json();
+                        notificationList.innerHTML = ''; // 기존 알림 제거
+                        if (notifications.length > 0) {
+                            notifications.forEach(notification => {
+                                addNotification(
+                                    notification.d_date,
+                                    notification.movie_title,
+                                    notification.movie_id
+                                );
+                            });
+                        } else {
+                            notificationList.innerHTML = '<p>새로운 알림이 없습니다.</p>';
+                        }
+                    } else {
+                        console.error('Failed to fetch notifications');
+                    }
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                }
+            }
+    
+            // 영화 슬라이드 이동
+            function scrollMovies(containerId, direction) {
+                const container = document.getElementById(containerId);
+                const scrollAmount = container.offsetWidth;
+    
+                if (direction === 'left') {
+                    if (container.scrollLeft === 0) {
+                        container.scrollLeft = container.scrollWidth; // 처음일 경우 끝으로 이동
+                    } else {
+                        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    }
+                } else if (direction === 'right') {
+                    if (container.scrollLeft + container.offsetWidth >= container.scrollWidth) {
+                        container.scrollLeft = 0; // 끝일 경우 처음으로 이동
+                    } else {
+                        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    }
+                }
+            }
+    
+            // TOP 버튼
+            const scrollToTopButton = document.getElementById('scrollToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    scrollToTopButton.classList.add('visible');
+                } else {
+                    scrollToTopButton.classList.remove('visible');
+                }
+            });
+    
+            scrollToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+    
+            // 이벤트 리스너 등록
+            notificationButton.addEventListener('click', toggleNotification);
+            searchButton.addEventListener('click', toggleSearchBox);
+            document.addEventListener('click', closeOnOutsideClick);
+    
+            // 초기 알림 데이터 가져오기
+            fetchNotifications();
+    
+            // 주기적으로 알림 확인 (5초 간격)
+            setInterval(fetchNotifications, 5000);
+        });
+    </script>
+    
+           
+</body>
+</html>

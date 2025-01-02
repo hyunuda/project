@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 수정</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(200, 200, 200, 0.2);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>영화 수정</h1>
+        <form method="POST">
+            <label for="movie_title">영화 제목</label>
+            <input type="text" id="movie_title" name="movie_title" value="{{ movie_info.movie_title }}" required>
+
+            <label for="release_year">개봉 연도</label>
+            <input type="text" id="release_year" name="release_year" value="{{ movie_info.release_year }}" required>
+
+            <label for="watch_grade">시청 등급</label>
+            <input type="number" id="watch_grade" name="watch_grade" value="{{ movie_info.watch_grade }}" required>
+
+            <label for="runtime">러닝타임</label>
+            <input type="number" id="runtime" name="runtime" value="{{ movie_info.runtime }}" required>
+
+            <label for="add_time">등록일</label>
+            <input type="text" id="add_time" name="add_time" value="{{ movie_info.add_time }}" required>
+
+            <label for="end_time">만료일</label>
+            <input type="text" id="end_time" name="end_time" value="{{ movie_info.end_time }}" required>
+
+            <label for="close_time">삭제일</label>
+            <input type="text" id="close_time" name="close_time" value="{{ movie_info.close_time or '' }}">
+
+            <label for="actor">배우</label>
+            <input type="text" id="actor" name="actor" value="{{ movie_actor.actor or '' }}">
+
+            <label for="country">국가</label>
+            <input type="text" id="country" name="country" value="{{ movie_country.country or '' }}">
+
+            <label for="director">감독</label>
+            <input type="text" id="director" name="director" value="{{ movie_director.director or '' }}">
+
+            <label for="synopsis1">시놉시스 1</label>
+            <textarea id="synopsis1" name="synopsis1">{{ movie_synopsis.synopsis1 or '' }}</textarea>
+
+            <label for="synopsis2">시놉시스 2</label>
+            <textarea id="synopsis2" name="synopsis2">{{ movie_synopsis.synopsis2 or '' }}</textarea>
+
+            <label for="keyword">키워드</label>
+            <input type="text" id="keyword" name="keyword" value="{{ movie_meta.keyword or '' }}">
+            
+            <label for="grade_total">평점 합</label>
+            <input type="number" id="grade_total" name="grade_total" value="{{ grade_total }}" onchange="calculateAverage()" required>
+
+            <label for="grade_cnt">평점 인원</label>
+            <input type="number" id="grade_cnt" name="grade_cnt" value="{{ grade_count }}" onchange="calculateAverage()" required>
+
+            <label for="grade_avg">평균 평점</label>
+            <input type="number" id="grade_avg" name="grade_avg" value="{{ (grade_total / (grade_count or 1)) | round(1) }}" readonly>
+
+            <button type="submit">저장</button>
+        </form>
+        <script>
+            function calculateAverage() {
+                const gradeTotal = parseFloat(document.getElementById('grade_total').value) || 0;
+                const gradeCount = parseInt(document.getElementById('grade_cnt').value) || 1; // 0으로 나누는 것을 방지하기 위해 기본값을 1로 설정
+            
+                const average = gradeTotal / gradeCount; // 평균 계산
+                document.getElementById('grade_avg').value = average.toFixed(1); // 소수점 첫째자리로 표시
+            }
+
+            function validateForm() {
+                // 추가적인 유효성 검사 로직을 여기에 추가할 수 있습니다.
+                return true;  // 검사가 통과하면 true를 반환
+            }
+        </script>
+    </div>
+</body>
+</html>

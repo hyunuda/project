@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 회원가입</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000; /* 배경을 검은색으로 설정 */
+            margin: 0;
+            padding: 20px;
+            color: #fff; /* 텍스트 색상을 흰색으로 설정 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 화면 높이의 100% 사용 */
+            position: relative;
+        }
+        .container {
+            max-width: 600px; /* 컨테이너 너비 */
+            padding: 20px;
+            background-color: #1a1a1a; /* 어두운 배경 색상 */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1); /* 밝은 회색 그림자 */
+            text-align: center;
+        }
+        h1 {
+            color: #fff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%; /* 너비를 100%로 설정 */
+            padding: 10px;
+            border: 1px solid #555; /* 어두운 테두리 */
+            border-radius: 5px;
+            background-color: #333; /* 입력창 배경 어둡게 */
+            color: #fff;
+            box-sizing: border-box; /* 테두리 포함 너비 고정 */
+        }
+        .form-group input::placeholder {
+            color: #ccc; /* 입력창 플라이스홀더 밝은 회색 */
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #ff0000; /* 포인트 색상을 빨간색으로 설정 */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #cc0000; /* 빨간색에 어두운 음영 */
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-btn:hover {
+            background-color: #666;
+        }
+        .progress-bar {
+            height: 5px;
+            background-color: #333; /* 기본 배경 색 */
+            margin: 5px 0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-bar div {
+            height: 100%;
+            width: 0%;
+            background-color: #666; /* 기본 진행 색상 */
+            transition: width 0.3s, background-color 0.3s;
+        }
+        #password-criteria {
+            display: flex;
+            justify-content: space-between; /* 가로로 나열 및 균등 간격 */
+            margin-top: 10px;
+            font-size: 0.8em; /* 글씨 크기 축소 */
+            color: #ccc; /* 기본 글씨 색상 */
+        }
+        #password-criteria span {
+            flex: 1;
+            text-align: center; /* 텍스트 가운데 정렬 */
+            padding: 5px;
+            margin: 0 5px;
+            transition: color 0.3s; /* 글씨 색상 변경 애니메이션 */
+        }
+        #password-criteria span.valid {
+            color: #28a745; /* 조건을 만족하면 초록색 */
+            font-weight: bold; /* 조건 만족 시 글씨 굵게 */
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="history.back()">뒤로가기</button>
+    <div class="container">
+        <h1>관리자 회원가입</h1>
+        <form id="signup-form" method="POST" action="/admin-signup">
+            <div class="form-group">
+                <label for="userid">이메일</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="example@domain.com" 
+                       pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" 
+                       title="이메일 형식에 맞게 입력해주세요">
+            </div>
+            
+            <div class="form-group">
+                <label for="user_pwd">비밀번호 (영문자, 숫자, 특수기호 포함 최소 8자리)</label>
+                <input type="password" id="user_pwd" name="user_pwd" required 
+                       placeholder="abcde123!" 
+                       pattern="(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\W_]).{8,}"
+                       title="비밀번호 형식에 맞게 입력해주세요">
+                <!-- 진행 바 -->
+                <div id="password-progress" class="progress-bar"></div>
+                <!-- 조건 리스트 -->
+                <div id="password-criteria">
+                    <span id="criteria-letter">영문자 포함</span>
+                    <span id="criteria-number">숫자 포함</span>
+                    <span id="criteria-special">특수기호</span>
+                    <span id="criteria-length">최소 8자리</span>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_user_pwd">비밀번호 확인</label>
+                <input type="password" id="confirm_user_pwd" name="confirm_user_pwd" required>
+                <!-- 진행 바 -->
+                <div id="confirm-progress" class="progress-bar"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="user_name">이름</label>
+                <input type="text" id="user_name" name="user_name" required placeholder="이름을 입력하세요">
+            </div>
+            <div class="form-group">
+                <label for="date_of_birth">생년월일</label>
+                <input type="date" id="date_of_birth" name="date_of_birth" required pattern="\d{4}-\d{2}-\d{2}" title="YYYY-MM-DD 형식으로 입력해주세요">
+            </div>
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <select id="gender" name="gender" required>
+                    <option value="남성">남성</option>
+                    <option value="여성">여성</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+        
+            <div class="form-group">
+                <label for="province">시도</label>
+                <select id="province" name="province" required>
+                    <option value="" selected disabled>시도를 선택하세요</option>
+                    <option value="서울특별시">서울특별시</option>
+                    <option value="부산광역시">부산광역시</option>
+                    <option value="대구광역시">대구광역시</option>
+                    <option value="인천광역시">인천광역시</option>
+                    <option value="광주광역시">광주광역시</option>
+                    <option value="대전광역시">대전광역시</option>
+                    <option value="울산광역시">울산광역시</option>
+                    <option value="세종특별자치시">세종특별자치시</option>
+                    <option value="경기도">경기도</option>
+                    <option value="강원도">강원도</option>
+                    <option value="충청북도">충청북도</option>
+                    <option value="충청남도">충청남도</option>
+                    <option value="전라북도">전라북도</option>
+                    <option value="전라남도">전라남도</option>
+                    <option value="경상북도">경상북도</option>
+                    <option value="경상남도">경상남도</option>
+                    <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn">회원가입</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // 비밀번호 입력 필드와 조건 리스트 요소 가져오기
+        const passwordInput = document.getElementById("user_pwd");
+        const confirmPasswordInput = document.getElementById("confirm_user_pwd");
+        const progressBar = document.getElementById("password-progress");
+        const confirmProgressBar = document.getElementById("confirm-progress");
+        const criteriaList = {
+            length: document.getElementById("criteria-length"),
+            letter: document.getElementById("criteria-letter"),
+            number: document.getElementById("criteria-number"),
+            special: document.getElementById("criteria-special"),
+        };
+
+        // 비밀번호 입력 이벤트 처리
+        passwordInput.addEventListener("input", function () {
+            const value = passwordInput.value;
+
+            // 각 조건 충족 여부 확인
+            const hasLength = value.length >= 8;
+            const hasLetter = /[a-zA-Z]/.test(value);
+            const hasNumber = /[0-9]/.test(value);
+            const hasSpecial = /[\W_]/.test(value);
+
+            // 조건 상태 업데이트
+            updateCriteria(criteriaList.length, hasLength);
+            updateCriteria(criteriaList.letter, hasLetter);
+            updateCriteria(criteriaList.number, hasNumber);
+            updateCriteria(criteriaList.special, hasSpecial);
+
+            // 조건 충족 개수 계산
+            const totalConditions = [hasLength, hasLetter, hasNumber, hasSpecial].filter(Boolean).length;
+            const progressPercent = (totalConditions / 4) * 100;
+
+            // 진행 바 업데이트
+            progressBar.innerHTML = `<div style="width: ${progressPercent}%; background-color: ${
+                totalConditions === 4 ? "#28a745" : "#ff0000"
+            };"></div>`;
+
+            // 비밀번호 변경 시 확인 바도 업데이트
+            updateConfirmBar();
+        });
+
+        // 비밀번호 확인 입력 이벤트 처리
+        confirmPasswordInput.addEventListener("input", updateConfirmBar);
+
+        // 비밀번호 확인 바 업데이트 함수
+        function updateConfirmBar() {
+            const passwordsMatch = confirmPasswordInput.value === passwordInput.value;
+            confirmProgressBar.innerHTML = `<div style="width: 100%; background-color: ${
+                passwordsMatch ? "#28a745" : "#ff0000"
+            };"></div>`;
+        }
+
+        // 조건 상태 업데이트 함수
+        function updateCriteria(element, isValid) {
+            if (isValid) {
+                element.classList.add("valid");
+            } else {
+                element.classList.remove("valid");
+            }
+        }
+    </script>
+</body>
+</html>

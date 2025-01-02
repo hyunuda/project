@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie['movie_title'] }} - 재생</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .video-container {
+            width: 80%;
+            max-width: 1000px;
+            position: relative;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.5);
+        }
+        .back-button:hover {
+            background-color: #ff4444;
+        }
+        .title {
+            font-size: 28px;
+            color: #ff0000;
+            text-align: center;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(255, 0, 0, 0.5);
+        }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 10;
+        }
+        .popup h3 {
+            margin: 0 0 10px;
+        }
+        .popup select, .popup button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+        .popup button {
+            background-color: #ff0000;
+            color: #fff;
+            cursor: pointer;
+        }
+        .popup button:hover {
+            background-color: #ff4444;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="header">
+            <button class="back-button" onclick="recordStopTime()">뒤로가기</button>
+            <h1 class="title">{{ movie['movie_title'] }}</h1>
+        </div>
+        <video id="movie-video" controls autoplay>
+            <source src="{{ url_for('static', filename=movie['video_path']) }}" type="video/mp4">
+            죄송합니다. 브라우저가 비디오 태그를 지원하지 않습니다.
+        </video>
+    </div>
+
+    <!-- 팝업 창 -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <h3>시청 완료율 선택</h3>
+        <select id="watch-percentage">
+            <option value="20">20%</option>
+            <option value="40">40%</option>
+            <option value="60">60%</option>
+            <option value="80">80%</option>
+            <option value="100">100%</option>
+        </select>
+        <h3 id="rating-label" style="display: none;">영화 평점 (1~10점)</h3>
+        <select id="movie-rating" style="display: none;">
+            <option value="1">1점</option>
+            <option value="2">2점</option>
+            <option value="3">3점</option>
+            <option value="4">4점</option>
+            <option value="5">5점</option>
+            <option value="6">6점</option>
+            <option value="7">7점</option>
+            <option value="8">8점</option>
+            <option value="9">9점</option>
+            <option value="10">10점</option>
+        </select>
+        <button onclick="submitData()">완료</button>
+    </div>
+    <script>
+        const popup = document.getElementById("popup");
+        const overlay = document.getElementById("overlay");
+        const watchPercentage = document.getElementById("watch-percentage");
+        const ratingLabel = document.getElementById("rating-label");
+        const movieRating = document.getElementById("movie-rating");
+        let isRequestInProgress = false; // 요청 중복 방지 플래그
+    
+        // 팝업 열기
+        function openPopup() {
+            popup.style.display = "block";
+            overlay.style.display = "block";
+        }
+    
+        // 팝업 닫기
+        function closePopup() {
+            popup.style.display = "none";
+            overlay.style.display = "none";
+        }
+    
+        // 시청 완료율 변경 감지
+        watchPercentage.addEventListener("change", () => {
+            if (watchPercentage.value >= 80) {
+                ratingLabel.style.display = "block";
+                movieRating.style.display = "block";
+            } else {
+                ratingLabel.style.display = "none";
+                movieRating.style.display = "none";
+            }
+        });
+    
+        // 데이터 제출 및 팝업 닫기
+        function submitData() {
+            const selectedPercentage = watchPercentage.value;
+            const selectedRating = movieRating.style.display === "block" ? movieRating.value : null;
+    
+            if (selectedPercentage >= 80 && !selectedRating) {
+                alert("평점을 입력해주세요.");
+                return;
+            }
+    
+            // 오늘 날짜를 YYYYMMDD 형식으로 생성
+            const today = new Date();
+            const formattedDate = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD 형식으로 변환
+    
+            // 데이터 서버로 전송
+            fetch("/save-watch-log", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    movie_id: "{{ movie['movie_id'] }}",
+                    watch_percentage: selectedPercentage,
+                    rating: selectedRating || 0,
+                    date: formattedDate,
+                    stop_time: new Date()
+                        .toISOString()
+                        .replace(/[-:T.]/g, "")
+                        .slice(0, 14), // 종료 시간 'YYYYMMDDHHMMSS' 형식
+                    start_time: sessionStorage.getItem("start_time"),
+                }),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        alert("저장이 완료되었습니다.");
+                        closePopup();
+                        window.location.href = "/movie_details/{{ movie['movie_id'] }}"; // 영화 상세 페이지로 이동
+                    } else {
+                        alert("저장에 실패했습니다.");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("데이터 전송 중 오류가 발생했습니다.");
+                });
+        }
+    
+        // 종료 시간 기록 및 팝업 열기
+        function recordStopTime() {
+            if (isRequestInProgress) {
+                console.log("요청이 이미 진행 중입니다.");
+                return;
+            }
+    
+            const stopTime = new Date()
+                .toISOString()
+                .replace(/[-:T.]/g, "")
+                .slice(0, 14); // 'YYYYMMDDHHMMSS' 형식으로 변환
+    
+            isRequestInProgress = true; // 요청 진행 중 플래그 설정
+    
+            // 종료 시간 저장
+            fetch("/save-watch-log", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    movie_id: "{{ movie['movie_id'] }}",
+                    stop_time: stopTime,
+                    start_time: sessionStorage.getItem("start_time"), // 시작 시간 전달
+                }),
+            })
+                .then((response) => {
+                    isRequestInProgress = false; // 요청 완료 플래그 해제
+                    if (response.ok) {
+                        openPopup(); // 종료 시간 저장 성공 후 팝업 열기
+                    } else {
+                        alert("종료 시간 저장에 실패했습니다.");
+                    }
+                })
+                .catch((error) => {
+                    isRequestInProgress = false; // 요청 실패 플래그 해제
+                    console.error("Error:", error);
+                    alert("종료 시간 기록 중 오류가 발생했습니다.");
+                });
+        }
+    
+        // 페이지 로드 시 시작 시간 저장
+        document.addEventListener("DOMContentLoaded", () => {
+            const startTime = new Date()
+                .toISOString()
+                .replace(/[-:T.]/g, "")
+                .slice(0, 14); // 'YYYYMMDDHHMMSS' 형식으로 변환
+            sessionStorage.setItem("start_time", startTime); // 시작 시간을 sessionStorage에 저장
+    
+            // 디버깅 로그 출력
+            console.log("Start Time Saved:", startTime);
+        });
+    
+        // 추가: 비디오 이벤트 리스너
+        const video = document.getElementById("movie-video");
+        video.addEventListener("play", () => {
+            console.log("비디오 재생 시작");
+        });
+    
+        video.addEventListener("pause", () => {
+            console.log("비디오 일시 정지");
+        });
+    
+        video.addEventListener("ended", () => {
+            console.log("비디오 재생 완료");
+            recordStopTime(); // 비디오 종료 시 종료 시간 기록 및 팝업 열기
+        });
+    </script>    
+</html>

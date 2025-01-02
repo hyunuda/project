@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선호 장르 선택</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000; /* 배경색을 검정색으로 */
+            color: #fff; /* 기본 텍스트 색상 흰색으로 */
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #444; /* 테두리를 어두운 색으로 */
+            border-radius: 5px;
+            background-color: #222; /* 컨테이너 배경 어두운 회색으로 */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            width: 400px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .genres-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .genre-option {
+            padding: 10px 15px;
+            border-radius: 20px;
+            background-color: #444; /* 기본 말풍선 회색 */
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .genre-option.selected {
+            background-color: #ff0000; /* 선택된 경우 빨간색 */
+            color: #fff;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff0000; /* 버튼 배경 빨간색으로 */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #cc0000; /* 버튼 hover 시 더 진한 빨간색으로 */
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const genreOptions = document.querySelectorAll('.genre-option');
+            genreOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    if (option.classList.contains('selected')) {
+                        option.classList.remove('selected');
+                    } else {
+                        const selectedOptions = document.querySelectorAll('.genre-option.selected');
+                        if (selectedOptions.length < 5) {
+                            option.classList.add('selected');
+                        }
+                    }
+                });
+            });
+        });
+
+        function saveSelectedGenres() {
+        const selectedGenres = document.querySelectorAll('.genre-option.selected');
+        const selectedIds = Array.from(selectedGenres).map(option => option.getAttribute('data-id'));
+        document.getElementById('selected-genres').value = selectedIds.join(',');
+        }   
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>선호하는 장르를 선택하세요 <br>(최대 5개)</h2>
+        <form method="POST" action="/select-genres">
+            <div class="form-group genres-container">
+                <div class="genre-option" data-id="G01">액션</div>
+                <div class="genre-option" data-id="G02">모험</div>
+                <div class="genre-option" data-id="G03">애니메이션</div>
+                <div class="genre-option" data-id="G04">코미디</div>
+                <div class="genre-option" data-id="G05">범죄</div>
+                <div class="genre-option" data-id="G06">다큐멘터리</div>
+                <div class="genre-option" data-id="G07">드라마</div>
+                <div class="genre-option" data-id="G08">가족</div>
+                <div class="genre-option" data-id="G09">판타지</div>
+                <div class="genre-option" data-id="G10">역사</div>
+                <div class="genre-option" data-id="G11">공포</div>
+                <div class="genre-option" data-id="G12">음악</div>
+                <div class="genre-option" data-id="G13">미스터리</div>
+                <div class="genre-option" data-id="G14">로맨스</div>
+                <div class="genre-option" data-id="G15">SF</div>
+                <div class="genre-option" data-id="G16">TV 영화</div>
+                <div class="genre-option" data-id="G17">스릴러</div>
+                <div class="genre-option" data-id="G18">전쟁</div>
+                <div class="genre-option" data-id="G19">서부</div>
+            </div>
+            <input type="hidden" name="genres" id="selected-genres">
+            <button type="submit" onclick="saveSelectedGenres()">저장하기</button>
+        </form>
+    </div>
+</body>
+</html>

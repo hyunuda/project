@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>계약 관리</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(200, 200, 200, 0.2);
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .back-button {
+            position: absolute;
+            left: 0;
+            padding: 10px 15px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #333;
+        }
+        .header-container h1 {
+            flex-grow: 1;
+            text-align: center;
+            margin: 0;
+            font-size: 1.8em;
+            color: #ff0000;
+        }
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .search-container input[type="text"] {
+            width: 91%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            margin-right: 10px;
+        }
+        .search-container button {
+            padding: 10px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #cc0000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #333;
+        }
+        .no-results {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ccc;
+            margin-top: 20px;
+        }
+        .info-text {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더: 뒤로가기 버튼과 제목 -->
+        <div class="header-container">
+            <a href="{{ url_for('admin_dashboard') }}" class="back-button">뒤로가기</a>
+            <h1>계약 관리</h1>
+        </div>
+
+        <!-- 30일 내에 계약이 종료될 영화 목록 안내 문구 -->
+        <p class="info-text">30일 내에 계약이 종료될 영화 목록입니다.</p>
+
+        <!-- 검색 기능 추가 -->
+        <div class="search-container">
+            <form method="get" action="/manage-expiring-movies" style="width: 100%;">
+                <input type="text" name="query" placeholder="영화 제목 또는 감독 이름을 입력하세요" value="{{ query }}">
+                <button type="submit">검색</button>
+            </form>
+        </div>
+        {% if expiring_movies %}
+        <table>
+            <thead>
+                <tr>
+                    <th>영화 ID</th>
+                    <th>영화 제목</th>
+                    <th>출시 연도</th>
+                    <th>계약 종료일</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movie in expiring_movies %}
+                <tr>
+                    <td>{{ movie.movie_id }}</td>
+                    <td>{{ movie.movie_title }}</td>
+                    <td>{{ movie.release_year }}</td>
+                    <td>{{ movie.end_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-results">계약이 임박한 영화가 없습니다.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

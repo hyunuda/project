@@ -1,0 +1,228 @@
+<!-- <!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>DASH BOARD</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            overflow-y: auto; /* 전체 페이지 스크롤 가능 */
+            height: 100vh; /* 전체 화면 높이에 맞춤 */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ccc; /* 테두리 추가 */
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
+            max-width: 600px; /* 최대 너비 설정 */
+            margin: auto; /* 중앙 정렬 */
+        }
+        .tab-links {
+            display: flex;
+            width: 100%; /* 너비 100% */
+            justify-content: space-between; /* 버튼 사이의 간격 조정 */
+        }
+        .tab-links button {
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            flex: 1; /* 각 버튼의 너비를 동일하게 설정 */
+        }
+        .tab-links .overall {
+            background: #28a745; /* 전체 통계 버튼 색상 */
+        }
+        .tab-links .personal {
+            background: #007bff; /* 개인 통계 버튼 색상 */
+        }
+        .tab-links button:hover {
+            background: #0056b3;
+        }
+        .active {
+            background: #0056b3;
+        }
+        .tab-content {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            overflow: hidden; /* 내부 스크롤 방지 */
+        }
+        .form-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select, button {
+            width: 80%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .button-container {
+            text-align: center; /* 버튼을 가운데 정렬 */
+            margin: 20px 0;
+        }
+        .graph-container {
+            text-align: center;
+            margin: 20px 0;
+            max-height: 400px; /* 그래프 컨테이너 최대 높이 설정 */
+            /* overflow: auto; */ /* 스크롤 제거 */
+        }
+        .reset-button {
+            background-color: #dc3545; /* 초기화 버튼 색상 */
+            color: white;
+        }
+        .reset-button:hover {
+            background-color: #c82333; /* 초기화 버튼 호버 색상 */
+        }
+        @media (max-width: 600px) {
+            .tab-links button {
+                font-size: 14px;
+            }
+            select, button {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <script>
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+
+            const buttons = document.querySelectorAll('.tab-links button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelector(`button[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        window.onload = function() {
+            showTab('personal'); // 기본적으로 개인 통계 탭을 보여줌
+        }
+    </script>
+</head>
+<body>
+    <h1>DASH BOARD</h1>
+    
+    <div class="tab-container">
+        <div class="tab-links">
+            <button class="personal" data-tab="personal" onclick="showTab('personal')">개인 사용자 통계</button>
+            <button class="overall" data-tab="overall" onclick="showTab('overall')">전체 통계</button>
+        </div>
+    </div>
+
+    <div id="personal" class="tab tab-content">
+        <form method="POST">
+            <div class="form-group">
+                <label for="user_id">사용자 아이디 선택:</label>
+                <select name="user_id" id="user_id">
+                    {% for user_id in user_ids %}
+                        <option value="{{ user_id }}">{{ user_id }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="x_variable">X 변수 선택:</label>
+                <select name="x_variable" id="x_variable">
+                    {% for col in df.columns if col != '아이디' %}
+                        <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="y_variable">Y 변수 선택:</label>
+                <select name="y_variable" id="y_variable">
+                    {% for col in df.columns if col != '아이디' %}
+                        <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chart_type">그래프 형태 선택:</label>
+                <select name="chart_type" id="chart_type">
+                    <option value="line">선 그래프</option>
+                    <option value="bar">막대 그래프</option>
+                    <option value="scatter">산점도</option>
+                </select>
+            </div>
+            <div class="button-container">
+                <button type="submit">그래프 생성</button>
+                <a href="/" style="text-decoration:none;">
+                    <button type="button" class="reset-button">초기화</button>
+                </a>
+            </div>
+        </form>
+
+        <div class="graph-container">
+            {% if graph_html %}
+                <h2>생성된 그래프</h2>
+                <div>{{ graph_html|safe }}</div>
+            {% else %}
+                <h2>그래프를 생성할 수 없습니다.</h2>
+            {% endif %}
+            {% if user_stats %}
+                <h3>통계 정보</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ccc; padding: 8px;">항목</th>
+                            <th style="border: 1px solid #ccc; padding: 8px;">평균</th>
+                            <th style="border: 1px solid #ccc; padding: 8px;">합계</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 8px;">시청시간</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['시청시간 평균'] }}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['시청시간 합계'] }}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 8px;">시정갯수</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['시정갯수 평균'] }}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['시정갯수 합계'] }}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ccc; padding: 8px;">지불금액</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['지불금액 평균'] }}</td>
+                            <td style="border: 1px solid #ccc; padding: 8px;">{{ user_stats['지불금액 합계'] }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+                <h3>통계 정보가 없습니다.</h3>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="overall" class="tab tab-content" style="display: none;">
+        <h2>전체 통계</h2>
+        <div class="graph-container">
+            <h3>추후 제작 예정</h3>
+            <a href="javascript:void(0);" onclick="showTab('personal')" style="text-decoration: none;">
+                <button class="reset-button">뒤로가기</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html> -->
